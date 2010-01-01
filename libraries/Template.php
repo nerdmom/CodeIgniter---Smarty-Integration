@@ -1,8 +1,6 @@
-// Makes it extremely easy to integrate code igniter and smarty as well as provide layout capabilites
 <?php if (!defined('BASEPATH')) exit('No direct script access allowed');
 
 require "smarty/Smarty.class.php";
-
 /**
  * Template
  * 
@@ -11,13 +9,19 @@ require "smarty/Smarty.class.php";
  * @copyright nerdmom
  * @version 2010
  * @access public
+ * @description Makes it extremely easy to integrate code igniter and smarty as well as provide layout capabilites
  */
 class Template extends Smarty {
 
-     /* This is the theme that will load by default, unless you
-     * manually change it
+    /**
+	* This is the layout that will load by default, unless you manually change it
      */
-    var $theme = "default";
+    var $layout_template = "default";
+    
+    /**
+	* The default extension to use for our templates
+     */    
+    var $ext = ".tpl";
 
     /**
      * Template::__construct()
@@ -40,7 +44,7 @@ class Template extends Smarty {
      * If key is an array, we can loop through to assign multiple values at once
      * @param mixed $key - can be associative array
      * @param mixed $value - optional unless key is a string
-     * @return
+     * @return object
      */
     function assign($key, $value = "")
     {
@@ -54,12 +58,15 @@ class Template extends Smarty {
     			}
 			    
 			$this->tpl->assign($key,$value);    		    		    		    		
-    		}        
+    		}
+		    
+		return $this;        
     }
 
     /**
      * Template::display()
-     * 
+     * Wrapper function for smarty->display().
+     * Displays just one template
      * @param mixed $template
      * @return
      */
@@ -70,7 +77,8 @@ class Template extends Smarty {
 
     /**
      * Template::fetch()
-     * 
+     * Wrapper function for smarty->fetch()
+     * Grabs just one template
      * @param mixed $template
      * @return
      */
@@ -81,20 +89,22 @@ class Template extends Smarty {
 
     /**
      * Template::layout()
-     * 
-     * @param mixed $inner_template
-     * @param mixed $array
-     * @return
+     * Where the magic happens!
+     * @param mixed $inner_template - The template to display within our layout
+     * @param mixed $array - Any last-minute data to add to the template output
+     * @return template
      */
-    function layout($inner_template,$array)
+    function layout($inner_template,$array = array())
     {
-          foreach($array as $key=>$val) {
-               $this->assign($key,$val);
-          }
+    		if( !empty($array) ) {
+    			$this->assign($array);    		
+    		}
 
-          $this->assign("inner_template",$inner_template);
+          $this->assign("inner_template", $inner_template);
 
-          $this->display($this->theme.".tpl");
+          $this->display($this->layout_template.$this->ext);
+          
+          // If we do not exit, CI will throw an error
           exit;
     }
 
